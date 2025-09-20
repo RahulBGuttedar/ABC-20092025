@@ -1,4 +1,4 @@
-# ABC-20092025
+# ABC-20092025 (Task 1)
 
 1. Create a Linux VM in Azure Portal
 A new Linux virtual machine was provisioned using the Azure portal. During setup, SSH authentication was configured by uploading a public key to the VM, and a static public IP address was assigned to ensure reliable remote connectivity and automation access.

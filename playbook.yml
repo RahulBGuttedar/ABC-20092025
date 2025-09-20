@@ -1,0 +1,54 @@
+---
+- hosts: azure_vm
+  become: yes
+  vars:
+    git_repo: "https://github.com/RahulBGuttedar/Demo3.git"
+    tf_dir: "/home/{{ ansible_user }}/tf-repo"
+  tasks:
+    - name: Install git, unzip, and curl
+      apt:
+        name: [git, unzip, curl]
+        state: present
+        update_cache: yes
+
+    - name: Download terraform using curl
+      command: >
+        curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+      register: dl
+
+    - name: Unzip terraform
+      unarchive:
+        src: /tmp/terraform.zip
+        dest: /usr/local/bin
+        remote_src: yes
+
+    - name: Clone TF repo
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ tf_dir }}"
+
+    - name: Run terraform init
+      command: terraform init
+      args:
+        chdir: "{{ tf_dir }}"
+
+    - name: Run terraform apply
+      command: terraform apply -auto-approve
+      args:
+        chdir: "{{ tf_dir }}"
+
+    - name: Capture TF output
+      command: terraform output -json
+      args:
+        chdir: "{{ tf_dir }}"
+      register: tf_output
+
+    - name: Print output
+      debug:
+        var: tf_output.stdout
+
+    - name: Terraform destroy (cleanup)
+      command: terraform destroy -auto-approve
+      args:
+        chdir: "{{ tf_dir }}"
+
